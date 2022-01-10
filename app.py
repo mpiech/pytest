@@ -1,7 +1,8 @@
 from flask import Flask, render_template
 from markupsafe import escape
 import pymongo
-import dns
+from waitress import serve
+#import dns
 
 app = Flask(__name__, static_url_path='')
 
@@ -33,3 +34,6 @@ def show_subpath(subpath):
     # show the subpath after /path/
     return f'Subpath {escape(subpath)}'
 
+if __name__ == '__main__':
+    serve(app, host='0.0.0.0', port=8080)
+    
