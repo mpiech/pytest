@@ -20,7 +20,7 @@ trk = coll.find_one()
 @app.route("/")
 def index():
     # return app.send_static_file('index.html')
-    return render_template('index.html.jinja', name=trk, googlemapskey=GMAPS_KEY)
+    return render_template('index.html.jinja', name=trk, googlemapskey=gmapskey)
 
 @app.route('/user/<username>')
 def show_user_profile(username):
