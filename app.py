@@ -1,42 +1,68 @@
-from flask import Flask, render_template
-from markupsafe import escape
-import pymongo
 import os
+from flask import Flask, render_template
 from waitress import serve
+import pymongo
+import psycopg2
 
 app = Flask(__name__, static_url_path='')
+
+### Crunchy Bridge
+
+cbhost = os.environ['PGHOST']
+cbusr = os.environ['PGUSER']
+cbpwd = os.environ['PGHOST']
+cbdb = os.environ['PGDB']
+
+cbconn = psycopg2.connect (
+    host=cbhost, 
+    user=cbusr,
+    password=cpbwd,
+    database=cbdb,
+    )
+
+def create_pandas_table(sql_query):
+    table = pd.read_sql_query(sql_query, cbconn)
+    return table
+
+### Mongo Atlas
 
 atlashost = os.environ['ATLAS_HOST']
 atlasusr = os.environ['ATLAS_USERNAME']
 atlaspwd = os.environ['ATLAS_PASSWORD']
 atlasdb = os.environ['ATLAS_DB']
-gmapskey = os.environ['GMAPS_KEY']
 
-client = pymongo.MongoClient("mongodb+srv://" + atlasusr + ":" + atlaspwd + "@" + atlashost + "/" + atlasdb + "?retryWrites=true&w=majority")
-db = client.mystrk
+mngclient = pymongo.MongoClient("mongodb+srv://" +
+                                atlasusr + ":" +
+                                atlaspwd + "@" +
+                                atlashost + "/" +
+                                atlasdb +
+                                "?retryWrites=true&w=majority")
+db = mngclient.mystrk
 coll = db.tracks
 trk = coll.find_one()
 
+### Google Maps
+
+gmapskey = os.environ['GMAPS_KEY']
+
+### Flask Routes
+
 @app.route("/")
-def index():
+def hanndler_get_index():
     # return app.send_static_file('index.html')
-    return render_template('index.html.jinja', name=trk, googlemapskey=gmapskey)
+    return render_template('index.html.jinja',
+                           name=trk,
+                           googlemapskey=gmapskey)
 
-@app.route('/user/<username>')
-def show_user_profile(username):
-    # show the user profile for that user
-    return f'User {escape(username)}'
+@app.route("/resdates/<from_date>")
+def handler_get_resdates(from_date):
+    resdates = creat_pandas_table(
+        "SELECT DISTINCT res_date FROM reservations WHERE \
+         resdate >= " + from_date + "::date")
+    return resdates
 
-@app.route('/post/<int:post_id>')
-def show_post(post_id):
-    # show the post with the given id, the id is an integer
-    return f'Post {post_id}'
 
-@app.route('/path/<path:subpath>')
-def show_subpath(subpath):
-    # show the subpath after /path/
-    return f'Subpath {escape(subpath)}'
+# Waitress HTTP server
 
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=8080)
-
