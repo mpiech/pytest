@@ -2,3 +2,4 @@ flask
 waitress
 pymongo[srv]
 psycopg2
+pandas
