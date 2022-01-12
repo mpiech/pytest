@@ -15,9 +15,9 @@ cbdb = os.environ['PGDB']
 
 cbconn = psycopg2.connect (
     host=cbhost, 
+    database=cbdb,
     user=cbusr,
     password=cbpwd,
-    database=cbdb,
     )
 
 def create_pandas_table(sql_query):
