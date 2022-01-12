@@ -54,6 +54,10 @@ def hanndler_get_index():
                            name=trk,
                            googlemapskey=gmapskey)
 
+@app.route("/test")
+def hanndler_get_test():
+    return trk
+
 @app.route("/resdates")
 def handler_get_resdates():
     start = request.args.get('start')
