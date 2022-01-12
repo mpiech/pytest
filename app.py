@@ -54,11 +54,13 @@ def hanndler_get_index():
                            name=trk,
                            googlemapskey=gmapskey)
 
-@app.route("/resdates/<from_date>")
+@app.route("/resdates")
 def handler_get_resdates(from_date):
+    start = request.args.get('start')
+    end = request.args.get('end')
     resdates = creat_pandas_table(
         "SELECT DISTINCT res_date FROM reservations WHERE \
-         resdate >= " + from_date + "::date")
+         resdate >= " + start + "::date")
     return resdates
 
 
