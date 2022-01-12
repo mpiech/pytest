@@ -61,7 +61,7 @@ def hanndler_get_test():
 
 @app.route("/resdates", methods=["GET"])
 def handler_get_resdates():
-    start = request.args.get('start')
+    start = request.args.get('start', type=str)
     end = request.args.get('end')
     resdates = create_pandas_table(
         "SELECT DISTINCT res_date FROM reservations WHERE \
