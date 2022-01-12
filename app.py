@@ -64,7 +64,8 @@ def handler_get_resdates():
     start = str(request.args.get('start', type=str))
     end = request.args.get('end')
     sqlstr = "SELECT DISTINCT res_date FROM reservations WHERE \
-    CAST (res_date AS DATE) >= CAST (" + start + " AS DATE)"
+    CAST (res_date AS TIMESTAMP) >= \
+    CAST (" + start + " AS TIMESTAMP)"
     fmt = '%Y%m%d %H:%M:%S'
     resdates = pd.read_sql_query(sqlstr,
                                  cbconn,
