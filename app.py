@@ -55,7 +55,7 @@ def hanndler_get_index():
                            googlemapskey=gmapskey)
 
 @app.route("/resdates")
-def handler_get_resdates(from_date):
+def handler_get_resdates():
     start = request.args.get('start')
     end = request.args.get('end')
     resdates = creat_pandas_table(
