@@ -17,7 +17,7 @@ cbconn = psycopg2.connect (
     host=cbhost, 
     database=cbdb,
     user=cbusr,
-    password=cbpwd,
+    password=cbpwd
     )
 
 def create_pandas_table(sql_query):
