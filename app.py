@@ -73,7 +73,11 @@ def handler_get_resdates():
     resdates = pd.read_sql_query(sqlstr,
                                  cbconn,
                                  parse_dates={'res_date':fmt})
-    return resdates
+    resarr = []
+    resarr.append({'title': 'Mys Rsvd', 'start': '2022-01-23'})
+    resarr.append({'title': 'Mys Rsvd', 'start': '2022-01-24'})
+
+    return resarr
 
 
 # Waitress HTTP server
