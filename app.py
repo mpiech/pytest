@@ -76,7 +76,7 @@ def handler_get_resdates():
     resarr = []
     resarr.append({'title': 'Mys Rsvd', 'start': '2022-01-23'})
     resarr.append({'title': 'Mys Rsvd', 'start': '2022-01-24'})
-    resstr=','.join(map(str,resarr))
+    resstr='[' + ','.join(map(str,resarr)) + ']'
     return resstr
 
 
