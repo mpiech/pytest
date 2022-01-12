@@ -10,7 +10,7 @@ app = Flask(__name__, static_url_path='')
 
 cbhost = os.environ['PGHOST']
 cbusr = os.environ['PGUSER']
-cbpwd = os.environ['PGHOST']
+cbpwd = os.environ['PGPASSWORD']
 cbdb = os.environ['PGDB']
 
 cbconn = psycopg2.connect (
