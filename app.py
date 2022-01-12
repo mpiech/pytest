@@ -65,7 +65,7 @@ def handler_get_resdates():
     end = request.args.get('end')
     resdates = create_pandas_table(
         "SELECT DISTINCT res_date FROM reservations WHERE \
-         resdate >= " + start + "::date")
+         res_date >= " + start + "::date")
     return resdates
 
 
