@@ -16,7 +16,7 @@ cbdb = os.environ['PGDB']
 cbconn = psycopg2.connect (
     host=cbhost, 
     user=cbusr,
-    password=cpbwd,
+    password=cbpwd,
     database=cbdb,
     )
 
