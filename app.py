@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from waitress import serve
 import pymongo
 import psycopg2
@@ -58,7 +58,7 @@ def hanndler_get_index():
 def hanndler_get_test():
     return trk
 
-@app.route("/resdates")
+@app.route("/resdates", methods=["GET"])
 def handler_get_resdates():
     start = request.args.get('start')
     end = request.args.get('end')
