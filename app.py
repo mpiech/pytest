@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 from waitress import serve
 import pymongo
 import psycopg2
+import pandas as pd
 
 app = Flask(__name__, static_url_path='')
 
@@ -62,7 +63,7 @@ def hanndler_get_test():
 def handler_get_resdates():
     start = request.args.get('start')
     end = request.args.get('end')
-    resdates = creat_pandas_table(
+    resdates = create_pandas_table(
         "SELECT DISTINCT res_date FROM reservations WHERE \
          resdate >= " + start + "::date")
     return resdates
