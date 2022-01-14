@@ -1,6 +1,7 @@
 import os
-from flask import Flask, render_template, request
-from waitress import serve
+import json
+import datetime
+from flask import Flask, render_template, request, jsonify
 import pymongo
 import psycopg2
 import pandas as pd
@@ -21,10 +22,6 @@ cbconn = psycopg2.connect (
     password=cbpwd
     )
 
-def create_pandas_table(sql_query):
-    table = pd.read_sql_query(sql_query, cbconn)
-    return table
-
 ### Mongo Atlas
 
 atlashost = os.environ['ATLAS_HOST']
@@ -38,9 +35,8 @@ mngclient = pymongo.MongoClient("mongodb+srv://" +
                                 atlashost + "/" +
                                 atlasdb +
                                 "?retryWrites=true&w=majority")
-db = mngclient.mystrk
-coll = db.tracks
-trk = coll.find_one()
+trkdb = mngclient.mystrk
+trkcol = trkdb.tracks
 
 ### Google Maps
 
@@ -50,37 +46,48 @@ gmapskey = os.environ['GMAPS_KEY']
 
 @app.route("/")
 def hanndler_get_index():
-    # return app.send_static_file('index.html')
     return render_template('index.html.jinja',
-                           name=trk,
                            googlemapskey=gmapskey)
 
-@app.route("/test")
-def hanndler_get_test():
-    return trk
-
-@app.route("/resdates", methods=["GET"])
-def handler_get_resdates():
-    start = str(request.args.get('start', type=str))
+@app.route("/events", methods=["GET"])
+def handler_get_events():
+    start = request.args.get('start')
     end = request.args.get('end')
-#    sqlstr = "SELECT DISTINCT res_date FROM reservations WHERE \
-#    CAST (res_date AS TIMESTAMP) >= \
-#    CAST (" + start + " AS TIMESTAMP)"
     sqlstr = "SELECT DISTINCT res_date FROM reservations WHERE \
     CAST (res_date AS TIMESTAMP) >= \
-    CAST ('2022-01-01' AS TIMESTAMP)"
-    fmt = '%Y%m%d %H:%M:%S'
-    resdates = pd.read_sql_query(sqlstr,
-                                 cbconn,
-                                 parse_dates={'res_date':fmt})
-    resarr = []
-    resarr.append({'title': 'Mys Rsvd', 'start': '2022-01-23'})
-    resarr.append({'title': 'Mys Rsvd', 'start': '2022-01-24'})
-    resstr='[' + ','.join(map(str,resarr)) + ']'
+    CAST ( '" + start + "' AS TIMESTAMP) AND \
+    CAST (res_date AS TIMESTAMP) <= \
+    CAST ( '" + end + "' AS TIMESTAMP)"
+    resdates = pd.read_sql_query(sqlstr, cbconn)
+
+    evlist = []
+
+    for i in resdates.index:
+        resdate = (str(resdates['res_date'][i])[0:10])
+        evlist.append({"title": "Mys Rsvd", "start": resdate})
+
+    strtdto = datetime.date.fromisoformat(start[0:10])
+    enddto = datetime.date.fromisoformat(end[0:10])
+    
+    #trkdates = trkcol.find({'date': {'$eleMatch': {'$gte': strtdto,
+    #                                             '$lte': enddto}}})
+
+    trks = trkcol.find()
+    for trk in trks:
+        dtstr = trk.get('date')
+        dto = datetime.date.fromisoformat(dtstr)
+        if dto >= strtdto and dto <= enddto:
+            evlist.append({"title": "Track", "start": dtstr})
+
+    return jsonify(evlist)
+
+@app.route("/track")
+def hanndler_get_track():
+    dat = request.args.get('date')
+    trk = trkcol.find_one({'date': dat})
+    pts = trk.get('points')
+    resstr = json.dumps(pts)
     return resstr
 
-
-# Waitress HTTP server
-
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080)

@@ -1,6 +1,6 @@
 <html>
-
   <head>
+    <meta charset='utf-8' />
     <title>Sailing Calendar</title>
     <meta 
        name="viewport" 
@@ -17,148 +17,110 @@
        type="text/css" 
        href="css/android.css" 
        media="only screen and (max-width: 600px)" />
-    <link 
-       href="fullcalendar-2.4.0/fullcalendar.css" 
-       rel="stylesheet" />
-    <link 
-       href="fullcalendar-2.4.0/fullcalendar.print.css"
-       rel="stylesheet" 
-       media="print" />
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
       #map-canvas { height: 100% }
     </style>
-    <script 
-       src="fullcalendar-2.4.0/lib/moment.min.js">
+    <script
+src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js'>
     </script>
-    <script 
-       src="fullcalendar-2.4.0/lib/jquery.min.js">
-    </script>
-    <script 
-       src="fullcalendar-2.4.0/fullcalendar.min.js">
-    </script>
-
-    <script src="http://maps.googleapis.com/maps/api/js?key={{googlemapskey}}">
+    <link
+      href='fullcalendar-5.10.1/main.css' rel='stylesheet' />
+    <script
+      src='fullcalendar-5.10.1/main.js'></script>
+    <script src='http://maps.googleapis.com/maps/api/js?key={{googlemapskey}}'>
     </script>
 
     <script>
 
-    var sailTrack = 
-        new google.maps.Polyline({
-	    path: [],
-	    geodesic: true,
-	    strokeColor: '#FF0000',
-	    strokeOpacity: 1.0,
-	    strokeWeight: 2
-	});
+      var sailTrack = 
+          new google.maps.Polyline({
+	      path: [],
+	      geodesic: true,
+	      strokeColor: '#FF0000',
+	      strokeOpacity: 1.0,
+	      strokeWeight: 2
+	  });
 
-    var prevDateObj = null;
-    var prevDateStr = null;
+      var prevDayEl = null;
 
-    $(document).ready(function() {
-      
-	var date = new Date();
-	var d = date.getDate();
-	var m = date.getMonth() + 1;
-	var y = date.getFullYear();
-	var todayDate = y + '-' + m + '-' + d;
-		
-        var mapOptions = {
-            center: new google.maps.LatLng(37.830, 
-					   -122.430),
-            zoom: 12,
-	    scrollwheel: false
-        };
+      document.addEventListener('DOMContentLoaded', function() {
+          var calendarEl = document.getElementById('calendar');
+          var calendar = new FullCalendar.Calendar(calendarEl, {
+	      initialView: 'dayGridMonth',
+	      editable: true,
+	      events: 'events',
 
-	var mapDiv = document.getElementById("map-canvas");
-	var map = new google.maps.Map(mapDiv, mapOptions);
+	      dateClick: function(info) {
 
-	function showTrack(trdate) {
+		  showTrack(info.dateStr);
+		  info.dayEl.style.backgroundColor =
+		      'MediumSpringGreen';
 
-	    sailTrack.setMap(null);
+		  if (prevDayEl) {
+		      prevDayEl.style.backgroundColor = 'white';
+		  }
 
-	    $.ajax({
-                url: "track",
-		type: 'GET',
-		data: {date: trdate}
-	    })
-		.done(function(rawTrack) {
+		  prevDayEl = info.dayEl;
+	      } // dateClick
+          });
+          calendar.render();
 
-		    var track = JSON.parse(rawTrack);
-		    var numPoints = track.length;
-		    var sailTrackPoints = [];
+          var mapOptions = {
+              center: new google.maps.LatLng(37.830, -122.430),
+              zoom: 12,
+	      scrollwheel: false
+          };
 
-		    for(var i = 0; i < numPoints; i++) { 
-			var curPoint = track[i];
-			var gPoint = 
-			    new google.maps.LatLng(
-				curPoint[1],
-				curPoint[2]);
-			sailTrackPoints.push(gPoint);
-			};
+	  var mapDiv = document.getElementById("map-canvas");
+	  var map = new google.maps.Map(mapDiv, mapOptions);
+
+	  function showTrack(trdate) {
+
+	      sailTrack.setMap(null);
+
+	      $.ajax({
+                  url: "track",
+		  type: 'GET',
+		  data: {date: trdate}
+	      })
+		  .done(function(rawTrack) {
+
+		      var track = JSON.parse(rawTrack);
+		      var numPoints = track.length;
+		      var sailTrackPoints = [];
+
+		      for(var i = 0; i < numPoints; i++) { 
+			  var curPoint = track[i];
+			  var gPoint = 
+			      new google.maps.LatLng(
+				  curPoint[1],
+				  curPoint[2]);
+			  sailTrackPoints.push(gPoint);
+		      };
 		    
-		    sailTrack = 
-			new google.maps.Polyline({
-			    path: sailTrackPoints,
-			    geodesic: true,
-			    strokeColor: '#FF0000',
-			    strokeOpacity: 1.0,
-			    strokeWeight: 2
-			});
+		      sailTrack = 
+			  new google.maps.Polyline({
+			      path: sailTrackPoints,
+			      geodesic: true,
+			      strokeColor: '#FF0000',
+			      strokeOpacity: 1.0,
+			      strokeWeight: 2
+			  });
 
-		    sailTrack.setMap(map);
-		    });
-	    };
-	
-	$('#calendar').fullCalendar({
+		      sailTrack.setMap(map);
+		  }); //ajax .done 
+	    }; //showTrack
+      }); //eventListener
 
-	    header: {
-		left: 'prev,next today',
-		center: 'title',
-		right: 'month,basicWeek,basicDay'
-	    },
-
-	    defaultDate: todayDate,
-
-	    editable: true,
-
-	    events: 'resdates',
-	    
-	    dayClick: function(date, jsEvent, view) {
-
-		if (prevDateObj) {
-		    if (prevDateStr == todayDate) {
-			prevDateObj.css('background-color',
-					'Chartreuse');
-		    } else {
-			prevDateObj.css('background-color',
-					'white');
-		    }
-		}
-
-		prevDateStr = date.format();
-		showTrack(prevDateStr);
-
-		// change the day's background color 
-		$(this).css('background-color', 
-			    'MediumSpringGreen');
-
-		prevDateObj = $(this);
-	    }
-	}); // fullCalendar
-		
-    }); // document.ready
     </script>
   </head>
 
   <body>
     <div id="container">
       <div id="header">
-	<h1>Mystique Calendar</h1>
-      </div>
-      <div id="play">
-	hello {{name}}
+	<h1>Sailing Calendar</h1>
       </div>
       <div id="calendar">
       </div>
