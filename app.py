@@ -29,12 +29,12 @@ atlasusr = os.environ['ATLAS_USERNAME']
 atlaspwd = os.environ['ATLAS_PASSWORD']
 atlasdb = os.environ['ATLAS_DB']
 
-mngclient = pymongo.MongoClient("mongodb+srv://" +
-                                atlasusr + ":" +
-                                atlaspwd + "@" +
-                                atlashost + "/" +
+mngclient = pymongo.MongoClient('mongodb+srv://' +
+                                atlasusr + ':' +
+                                atlaspwd + '@' +
+                                atlashost + '/' +
                                 atlasdb +
-                                "?retryWrites=true&w=majority")
+                                '?retryWrites=true&w=majority')
 trkdb = mngclient.mystrk
 trkcol = trkdb.tracks
 
@@ -44,13 +44,16 @@ gmapskey = os.environ['GMAPS_KEY']
 
 ### Flask Routes
 
-@app.route("/")
+@app.route('/')
 def hanndler_get_index():
     return render_template('index.html.jinja',
                            googlemapskey=gmapskey)
 
-@app.route("/events", methods=["GET"])
+@app.route('/events', methods=['GET'])
 def handler_get_events():
+    # return e.g. [{'title': 'Mys Rsvd', 'start': '2022-01-23'},
+    #              {'title': 'Mys Rsvd', 'start': '2022-01-24'},
+    #              {'title': 'Track', 'start': '2022-01-24'}]
     start = request.args.get('start')
     end = request.args.get('end')
     sqlstr = "SELECT DISTINCT res_date FROM reservations WHERE \
@@ -64,7 +67,7 @@ def handler_get_events():
 
     for i in resdates.index:
         resdate = (str(resdates['res_date'][i])[0:10])
-        evlist.append({"title": "Mys Rsvd", "start": resdate})
+        evlist.append({'title': 'Mys Rsvd', 'start': resdate})
 
     strtdto = datetime.date.fromisoformat(start[0:10])
     enddto = datetime.date.fromisoformat(end[0:10])
@@ -77,12 +80,16 @@ def handler_get_events():
         dtstr = trk.get('date')
         dto = datetime.date.fromisoformat(dtstr)
         if dto >= strtdto and dto <= enddto:
-            evlist.append({"title": "Track", "start": dtstr})
+            evlist.append({'title': 'Track', 'start': dtstr})
 
     return jsonify(evlist)
 
-@app.route("/track")
+@app.route('/track')
 def hanndler_get_track():
+    # return e.g. [["2021-12-09T10:01:45", "37.870490",
+    #                                      "-122.498100"]
+    #              ["2021-12-09T10:28:43", "37.870500",
+    #                                      "-122.497900"]]
     dat = request.args.get('date')
     trk = trkcol.find_one({'date': dat})
     pts = trk.get('points')
