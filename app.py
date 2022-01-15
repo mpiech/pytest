@@ -26,13 +26,13 @@ if os.path.exists(BINDINGS_ROOT):
         btype = get_bndg_param(bdir, 'type')
         if btype == 'mongodb':
             atlashost = get_bndg_param(bdir, 'host')
-            atlasusr = get_bndg_param(bdir, 'user')
+            atlasusr = get_bndg_param(bdir, 'username')
             atlaspwd = get_bndg_param(bdir, 'password')
             atlasdb = 'mystrk'
             atlasbndg = True
         elif btype == 'postgres':
             cbhost = get_bndg_param(bdir, 'host')
-            cbusr = get_bndg_param(bdir, 'user')
+            cbusr = get_bndg_param(bdir, 'username')
             cbpwd = get_bndg_param(bdir, 'password')
             cbdb = 'postgres'
             cbbndg = True
@@ -54,12 +54,11 @@ cbconn = psycopg2.connect (
 
 ### Mongo Atlas
 
-#if not atlasbndg:
-
-atlashost = os.environ['ATLAS_HOST']
-atlasusr = os.environ['ATLAS_USERNAME']
-atlaspwd = os.environ['ATLAS_PASSWORD']
-atlasdb = os.environ['ATLAS_DB']
+if not atlasbndg:
+    atlashost = os.environ['ATLAS_HOST']
+    atlasusr = os.environ['ATLAS_USERNAME']
+    atlaspwd = os.environ['ATLAS_PASSWORD']
+    atlasdb = os.environ['ATLAS_DB']
 
 mngclient = pymongo.MongoClient('mongodb+srv://' +
                                 atlasusr + ':' +
