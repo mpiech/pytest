@@ -8,12 +8,42 @@ import pandas as pd
 
 app = Flask(__name__, static_url_path='')
 
+BINDINGS_ROOT = '/bindings'
+
+def get_bndg_param(bdir, bparam):
+    fname = '/'.join(BINDINGS_ROOT, bdir, bparam)
+    if os.path.exists(fname):
+        with open(fname) as f:
+            return f.readlines()[0]
+    else:
+        return None
+
+atlasbndg = False
+cbbndg = False
+
+if os.path.exists(BINDINGS_ROOT):
+    for bdir in os.listdir(BINDINGS_ROOT):
+        btype = get_bndg_param(bndgdir, 'type')
+        if btype == 'mongodb':
+            atlashost = get_bndg_param(bdir, 'host')
+            atlasusr = get_bndg_param(bdir, 'user')
+            atlaspwd = get_bndg_param(bdir, 'password')
+            atlasdb = 'mystrk'
+            atlasbndg = True
+        elif btype == 'postgres':
+            cbhost = get_bndg_param(bdir, 'host')
+            cbusr = get_bndg_param(bdir, 'user')
+            cbpwd = get_bndg_param(bdir, 'password')
+            cbdb = 'postgres'
+            cbbndg = True
+
 ### Crunchy Bridge
 
-cbhost = os.environ['PGHOST']
-cbusr = os.environ['PGUSER']
-cbpwd = os.environ['PGPASSWORD']
-cbdb = os.environ['PGDB']
+if not cbbndg:
+    cbhost = os.environ['PGHOST']
+    cbusr = os.environ['PGUSER']
+    cbpwd = os.environ['PGPASSWORD']
+    cbdb = os.environ['PGDB']
 
 cbconn = psycopg2.connect (
     host=cbhost, 
@@ -24,10 +54,11 @@ cbconn = psycopg2.connect (
 
 ### Mongo Atlas
 
-atlashost = os.environ['ATLAS_HOST']
-atlasusr = os.environ['ATLAS_USERNAME']
-atlaspwd = os.environ['ATLAS_PASSWORD']
-atlasdb = os.environ['ATLAS_DB']
+if not atlasbndg:
+    atlashost = os.environ['ATLAS_HOST']
+    atlasusr = os.environ['ATLAS_USERNAME']
+    atlaspwd = os.environ['ATLAS_PASSWORD']
+    atlasdb = os.environ['ATLAS_DB']
 
 mngclient = pymongo.MongoClient('mongodb+srv://' +
                                 atlasusr + ':' +
@@ -47,7 +78,8 @@ gmapskey = os.environ['GMAPS_KEY']
 @app.route('/')
 def hanndler_get_index():
     return render_template('index.html.jinja',
-                           googlemapskey=gmapskey)
+                           googlemapskey=gmapskey,
+                           atlas=atlasbndg, cb=cbbndg)
 
 @app.route('/events', methods=['GET'])
 def handler_get_events():
