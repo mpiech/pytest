@@ -23,7 +23,7 @@ cbbndg = False
 
 if os.path.exists(BINDINGS_ROOT):
     for bdir in os.listdir(BINDINGS_ROOT):
-        btype = get_bndg_param(bndgdir, 'type')
+        btype = get_bndg_param(bdir, 'type')
         if btype == 'mongodb':
             atlashost = get_bndg_param(bdir, 'host')
             atlasusr = get_bndg_param(bdir, 'user')
