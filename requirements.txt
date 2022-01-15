@@ -1,5 +1,4 @@
 datetime
-urllib
 flask
 pymongo[srv]
 psycopg2
