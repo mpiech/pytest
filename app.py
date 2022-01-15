@@ -11,7 +11,7 @@ app = Flask(__name__, static_url_path='')
 BINDINGS_ROOT = '/bindings'
 
 def get_bndg_param(bdir, bparam):
-    fname = '/'.join(BINDINGS_ROOT, bdir, bparam)
+    fname = (BINDINGS_ROOT + '/' + bdir + '/' + bparam)
     if os.path.exists(fname):
         with open(fname) as f:
             return f.readlines()[0]
