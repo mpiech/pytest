@@ -54,11 +54,11 @@ cbconn = psycopg2.connect (
 
 ### Mongo Atlas
 
-if not atlasbndg:
-    atlashost = os.environ['ATLAS_HOST']
-    atlasusr = os.environ['ATLAS_USERNAME']
-    atlaspwd = os.environ['ATLAS_PASSWORD']
-    atlasdb = os.environ['ATLAS_DB']
+#if not atlasbndg:
+atlashost = os.environ['ATLAS_HOST']
+atlasusr = os.environ['ATLAS_USERNAME']
+atlaspwd = os.environ['ATLAS_PASSWORD']
+atlasdb = os.environ['ATLAS_DB']
 
 mngclient = pymongo.MongoClient('mongodb+srv://' +
                                 atlasusr + ':' +
