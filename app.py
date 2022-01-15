@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import urllib.parse
 from flask import Flask, render_template, request, jsonify
 import pymongo
 import psycopg2
@@ -27,7 +28,8 @@ if os.path.exists(BINDINGS_ROOT):
         if btype == 'mongodb':
             atlashost = get_bndg_param(bdir, 'host')
             atlasusr = get_bndg_param(bdir, 'username')
-            atlaspwd = get_bndg_param(bdir, 'password')
+            tmppwd = get_bndg_param(bdir, 'password')
+            atlaspwd = urllib.parse.quote_plus(tmppwd)
             atlasdb = 'mystrk'
             atlasbndg = True
         elif btype == 'postgres':
@@ -57,15 +59,17 @@ cbconn = psycopg2.connect (
 #if not atlasbndg:
 atlashost = os.environ['ATLAS_HOST']
 atlasusr = os.environ['ATLAS_USERNAME']
-atlaspwd = os.environ['ATLAS_PASSWORD']
+atlaspwd = urllib.parse.quote_plus(os.environ['ATLAS_PASSWORD'])
 atlasdb = os.environ['ATLAS_DB']
 
-mngclient = pymongo.MongoClient('mongodb+srv://' +
-                                atlasusr + ':' +
-                                atlaspwd + '@' +
-                                atlashost + '/' +
-                                atlasdb +
-                                '?retryWrites=true&w=majority')
+mngconnstr = 'mongodb+srv://' + \
+atlasusr + ':' + \
+atlaspwd + '@' + \
+atlashost + '/' + \
+atlasdb + \
+'?retryWrites=true&w=majority'
+
+mngclient = pymongo.MongoClient(mngconnstr)
 trkdb = mngclient.mystrk
 trkcol = trkdb.tracks
 
