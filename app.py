@@ -36,7 +36,7 @@ if os.path.exists(BINDINGS_ROOT):
             cbhost = get_bndg_param(bdir, 'host')
             cbusr = get_bndg_param(bdir, 'username')
             cbpwd = get_bndg_param(bdir, 'password')
-            cbdb = 'postgres'
+            cbdb = 'postgresql'
             cbbndg = True
 
 ### Crunchy Bridge
